@@ -15,7 +15,7 @@ os.environ['SSL_CERT_FILE'] = os.getenv('SSL_CERT_FILE', '/etc/ssl/certs/ca-cert
 class Pipeline:
     def __init__(self):
         self.subsidies_pipeline = None
-        self.name = "Subsidies_МСХ_v1_1"
+        self.name = "Subsidies_МСХ_v1_OpenAI"
 
     async def on_startup(self):
         openai.api_key = os.getenv("NIT_OPENAI_API_KEY")

@@ -13,17 +13,17 @@ load_dotenv(find_dotenv())
 os.environ['SSL_CERT_FILE'] = '/etc/ssl/certs/ca-certificates.crt'
 
 # Получаем API-ключи и параметры БД из окружения
-OPENAI_API_KEY = os.getenv("NIT_OPENAI_API_KEY")
+#OPENAI_API_KEY = os.getenv("NIT_OPENAI_API_KEY")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://100.98.3.202:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "llama3.3:latest")
 
 class Pipeline:
     def __init__(self):
         self.subsidies_pipeline = None
-        self.name = "Subsidies_МСХ_v1_2"
+        self.name = "Subsidies_МСХ_v1_ollama"
 
     async def on_startup(self):
-        openai.api_key = OPENAI_API_KEY
+        #openai.api_key = OPENAI_API_KEY
         
         def subsidies_ask(query, cur, maksat_model):
             with torch.no_grad():
