@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import torch
 import psycopg2
 import os
@@ -6,6 +6,7 @@ import requests
 from dotenv import load_dotenv
 from typing import List, Union, Generator, Iterator
 from fastapi import Request
+import json
 
 load_dotenv()
 
@@ -18,7 +19,9 @@ class Pipeline:
         self.name = "Subsidies_МСХ_v1_OpenAI"
 
     async def on_startup(self):
-        openai.api_key = os.getenv("NIT_OPENAI_API_KEY")
+        
+        OPENAI_API_KEY = os.getenv('NIT_OPENAI_API_KEY')
+        client = OpenAI(api_key=OPENAI_API_KEY)
         
         def extract_keywords_documents(text, model="gpt-4o", max_tokens=300,  max_keywords=30):
             """Use OpenAI to extract main keywords or phrases from text."""
@@ -29,7 +32,7 @@ class Pipeline:
                 """
             )
             try:
-                response =  openai.chat.completions.create(
+                response =  client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": "You are an assistant who extracts the main keywords/phrases from the text."}, 
                         {"role": "user", "content": prompt}
@@ -113,8 +116,9 @@ class Pipeline:
 
         question = user_message
         context = ""
-        OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-      
+        OPENAI_API_KEY = os.getenv('NIT_OPENAI_API_KEY')
+        client = OpenAI(api_key=OPENAI_API_KEY)
+
         headers = {}
         headers["Authorization"] = f"Bearer {OPENAI_API_KEY}"
         headers["Content-Type"] = "application/json"
@@ -124,7 +128,7 @@ class Pipeline:
             if len(messages) > 2:
                 if len(str(messages))/2 > 110000:
                     messages = messages[len(messages)//2:]
-                initial_response = openai.chat.completions.create(
+                initial_response = client.chat.completions.create(
                     messages=[
                         {
                         "role": "user",
@@ -169,6 +173,7 @@ class Pipeline:
                     host=os.getenv("NIT_DB_HOST_int"),
                     port=os.getenv("NIT_DB_PORT")
                 )
+                
                 print('Database connection established')
                 cursor = db_conn.cursor()
                 
@@ -185,7 +190,7 @@ class Pipeline:
                 print('Context was not added')
         
             context = context[:110000]
-            response = openai.chat.completions.create(
+            response = client.chat.completions.create(
             messages=[
                 {
                 "role": "user",
@@ -218,7 +223,7 @@ class Pipeline:
                     stream = True
                 )
         else:
-            response = openai.chat.completions.create(
+            response = client.chat.completions.create(
                         messages=[
                             {
                             "role": "user",
